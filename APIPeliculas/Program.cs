@@ -21,6 +21,7 @@ namespace APIPeliculas
 
             //Add repositories
             builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+            builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 
 
 

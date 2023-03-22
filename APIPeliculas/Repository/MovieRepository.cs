@@ -1,6 +1,7 @@
 ﻿using APIPeliculas.Data;
 using APIPeliculas.Models;
 using APIPeliculas.Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace APIPeliculas.Repository
 {
@@ -61,11 +62,16 @@ namespace APIPeliculas.Repository
 
         public ICollection<Movie> GetMoviesInCategory(int id)
         {
-            throw new NotImplementedException();
+            return _context.Movies.Include(c => c.Category).Where(x => x.CategoryId == id).ToList();
         }
         public ICollection<Movie> SearchMovie(string name)
         {
-            throw new NotImplementedException();
+            IQueryable<Movie> query = _context.Movies;
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Include(x => x.Category).Where(e => e.Name.Contains(name) || e.Description.Contains(name));
+            }
+            return query.ToList();
         }
     }
 }

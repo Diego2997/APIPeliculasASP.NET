@@ -34,6 +34,8 @@ namespace APIPeliculas.Controllers
             }
             return Ok(listCategoriesDto);
         }
+
+
         [HttpGet("{id:int}")]
         [ActionName(nameof(GetCategory))]
         [ProducesResponseType(StatusCodes.Status200OK)]
