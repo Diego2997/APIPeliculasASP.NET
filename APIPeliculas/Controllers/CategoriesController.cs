@@ -2,14 +2,16 @@
 using APIPeliculas.Models.Dtos;
 using APIPeliculas.Repository.IRepository;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APIPeliculas.Controllers
 {
     //[Route("api/[controller]")]//Una opcion
+    //[Authorize(Roles = "admin")]
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/controller")]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryRepository _ctRepo;
@@ -20,7 +22,10 @@ namespace APIPeliculas.Controllers
             _ctRepo = ctrepo;
             _mapper = mapper;
         }
+        [AllowAnonymous]
         [HttpGet]
+        //[ResponseCache(Duration = 20)]
+        [ResponseCache(CacheProfileName = "Defect")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public IActionResult GetCategories()
@@ -35,8 +40,11 @@ namespace APIPeliculas.Controllers
             return Ok(listCategoriesDto);
         }
 
-
+        [AllowAnonymous]
         [HttpGet("{id:int}")]
+        //[ResponseCache(Duration = 30)]
+        //[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        [ResponseCache(CacheProfileName = "Defect")]
         [ActionName(nameof(GetCategory))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -53,10 +61,12 @@ namespace APIPeliculas.Controllers
             return Ok(itemCategoryDto);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ProducesResponseType(201,Type =  typeof(CategoryDto))]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
         {
@@ -84,9 +94,11 @@ namespace APIPeliculas.Controllers
             return CreatedAtAction(nameof(GetCategory), new { categoryId = category.Id });
 
         }
+        [Authorize(Roles = "admin")]
         [HttpPatch("{id:int}",Name = "UpdatePatchCategory")]
         [ProducesResponseType(201, Type = typeof(CategoryDto))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult UpdatePatchCategory(int id,[FromBody] CategoryDto categoryDto)
@@ -110,9 +122,12 @@ namespace APIPeliculas.Controllers
 
             return NoContent();
         }
+
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id:int}", Name = "DeleteCategory")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult DeleteCategory(int id)
